@@ -9,14 +9,29 @@ connectDB();
 
 const app = express();
 
-// Middleware
+// ✅ CORS FIX (IMPORTANT)
+const allowedOrigins = [
+  "https://extraordinary-cactus-270adc.netlify.app"
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  credentials: true,
+  origin: function (origin, callback) {
+    // allow requests with no origin (like Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed"));
+    }
+  },
+  credentials: true
 }));
+
+// Middleware
 app.use(express.json());
 
-// Morgan - production-ல் dev log வேண்டாம்  ✅ NEW
+// Morgan (only dev)
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
@@ -41,6 +56,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ✅ இது already உன்கிட்ட இருக்கு - correct!
+// Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
