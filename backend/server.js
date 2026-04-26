@@ -9,29 +9,16 @@ connectDB();
 
 const app = express();
 
-// ✅ CORS FIX (IMPORTANT)
-const allowedOrigins = [
-  "https://extraordinary-cactus-270adc.netlify.app"
-];
-
+// ✅ CORS (ONLY ONCE)
 app.use(cors({
-  origin: function (origin, callback) {
-    // allow requests with no origin (like Postman)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed"));
-    }
-  },
+  origin: "https://extraordinary-cactus-270adc.netlify.app",
   credentials: true
 }));
 
 // Middleware
 app.use(express.json());
 
-// Morgan (only dev)
+// Morgan
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
@@ -47,7 +34,7 @@ app.use('/api/users', require('./routes/user.routes'));
 // Health check
 app.get('/', (req, res) => res.json({ message: 'Mini CRM API running' }));
 
-// Global error handler
+// Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.statusCode || 500).json({
